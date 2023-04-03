@@ -10,10 +10,10 @@ import torch
 import torch.nn as nn
 
 # torchlight
-import torchlight
-from torchlight import str2bool
-from torchlight import DictAction
-from torchlight import import_class
+import torchlight.torchlight as torchlight
+from torchlight.torchlight.io import str2bool
+from torchlight.torchlight.io import DictAction
+from torchlight.torchlight.io import import_class
 
 class IO():
     """

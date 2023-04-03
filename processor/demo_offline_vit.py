@@ -94,7 +94,6 @@ class DemoOfflineViT(IO):
 
     def pose_estimation(self):
         # load ViTPose python api
-        # 
         if self.arg.openpose is not None:
             sys.path.append('{}/python'.format(self.arg.openpose))
             sys.path.append('{}/build/python'.format(self.arg.openpose))
