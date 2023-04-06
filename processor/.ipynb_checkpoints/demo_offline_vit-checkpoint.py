@@ -9,7 +9,7 @@ import time
 import numpy as np
 import torch
 import skvideo.io
-
+from PIL import Image
 from .io import IO
 import tools
 import tools.utils as utils
@@ -42,13 +42,18 @@ class DemoOfflineViT(IO):
         # render the video
         images = self.render_video(data_numpy, voting_label_name,
                             video_label_name, intensity, video)
-
+        
+        videoWrite = cv2.VideoWriter('/hy-tmp/video_result/ta_chi_result.avi', 
+                                     cv2.VideoWriter_fourcc(*'MJPG'), 
+                                     30, 
+                                     (1434,1080), 
+                                     True)# 写入对象
+        
         # visualize
         for image in images:
             image = image.astype(np.uint8)
-            cv2.imshow("ST-GCN", image)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            videoWrite.write(image)
+        videoWrite.release()
 
     def predict(self, data):
         # forward
@@ -93,25 +98,27 @@ class DemoOfflineViT(IO):
         return images
 
     def pose_estimation(self):
-        # load ViTPose python api
-        if self.arg.openpose is not None:
-            sys.path.append('{}/python'.format(self.arg.openpose))
-            sys.path.append('{}/build/python'.format(self.arg.openpose))
+        # load ViTPose module
         try:
-            from openpose import pyopenpose as op
+            from tools.estimate_st import estimate
+            ckpt_name = os.path.basename(self.arg.ckpt_path)
+            if ckpt_name == "vitpose-l.pth":
+                from config.ViTPose_large_coco_256x192 import model as model_cfg
+                from config.ViTPose_large_coco_256x192 import data_cfg
+            elif ckpt_name == "vitpose-h.pth":
+                from config.ViTPose_huge_coco_256x192 import model as model_cfg
+                from config.ViTPose_huge_coco_256x192 import data_cfg
+            elif ckpt_name == "vitpose-b.pth":
+                from config.ViTPose_base_coco_256x192 import model as model_cfg
+                from config.ViTPose_base_coco_256x192 import data_cfg
         except:
-            print('Can not find Openpose Python API.')
+            print('Can not find ViTPose api')
             return
 
         # 获取路径中最后的的视频文件名称
         video_name = self.arg.video.split('/')[-1].split('.')[0]
 
         # initiate
-        opWrapper = op.WrapperPython()
-        params = dict(model_folder='./models', model_pose='COCO')
-        opWrapper.configure(params)
-        opWrapper.start()
-        self.model.eval()
         video_capture = cv2.VideoCapture(self.arg.video)
         video_length = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
         pose_tracker = naive_pose_tracker(data_frame=video_length)
@@ -133,10 +140,14 @@ class DemoOfflineViT(IO):
             video.append(orig_image)
 
             # pose estimation
-            datum = op.Datum()
-            datum.cvInputData = orig_image
-            opWrapper.emplaceAndPop([datum])
-            multi_pose = datum.poseKeypoints  # Shape '(num_person, num_joint, 3)
+            img_size = data_cfg['image_size']
+            CKPT_PATH = self.arg.ckpt_path
+            orig_image = Image.fromarray(cv2.cvtColor(orig_image, cv2.COLOR_BGR2RGB))
+            multi_pose = estimate(img=orig_image, img_size=img_size, model_cfg=model_cfg, ckpt_path=CKPT_PATH, 
+                                  device=torch.device("cuda") if torch.cuda.is_available() else torch.device('cpu'),
+                                  ) # Shape '(num_person, num_joint, 3)'
+            # estimate的输出用于st-gcn时x-y坐标位置会互换，这里要先换一次，否则输出的关键点的坐标是错误的
+            multi_pose[:,:,[0,1]] = multi_pose[:,:,[1,0]]
             if len(multi_pose.shape) != 3:
                 continue
 
@@ -183,6 +194,10 @@ class DemoOfflineViT(IO):
                             default=1080,
                             type=int,
                             help='height of frame in the output video.')
+        parser.add_argument('--ckpt_path', 
+                            type=str, 
+                            default='/hy-tmp/train_result/vitpose-l.pth', 
+                            help='ckpt path(s)')
         parser.set_defaults(
             config='./config/st_gcn/kinetics-skeleton/demo_offline.yaml')
         parser.set_defaults(print_log=False)

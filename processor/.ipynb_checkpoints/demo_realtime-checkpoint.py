@@ -9,51 +9,110 @@ import time
 import numpy as np
 import torch
 import skvideo.io
-from PIL import Image
+
 from .io import IO
 import tools
 import tools.utils as utils
 
 import cv2
 
-class DemoOfflineViT(IO):
+class DemoRealtime(IO):
+    """ A demo for utilizing st-gcn in the realtime action recognition.
+    The Openpose python-api is required for this demo.
+
+    Since the pre-trained model is trained on videos with 30fps,
+    and Openpose is hard to achieve this high speed in the single GPU,
+    if you want to predict actions by **camera** in realtime,
+    either data interpolation or new pre-trained model
+    is required.
+
+    Pull requests are always welcome.
+    """
 
     def start(self):
-        
-        # initiate
-        # label_name中加载了kinetics_skeleton数据集中所有的动作分类
+        # load openpose python api
+        if self.arg.openpose is not None:
+            sys.path.append('{}/python'.format(self.arg.openpose))
+            sys.path.append('{}/build/python'.format(self.arg.openpose))
+        try:
+            from openpose import pyopenpose as op
+        except:
+            print('Can not find Openpose Python API.')
+            return
+
+        video_name = self.arg.video.split('/')[-1].split('.')[0]
         label_name_path = './resource/kinetics_skeleton/label_name.txt'
         with open(label_name_path) as f:
             label_name = f.readlines()
             label_name = [line.rstrip() for line in label_name]
             self.label_name = label_name
 
-        # pose estimation
-        video, data_numpy = self.pose_estimation()
+        # initiate
+        opWrapper = op.WrapperPython()
+        params = dict(model_folder='./models', model_pose='COCO')
+        opWrapper.configure(params)
+        opWrapper.start()
+        self.model.eval()
+        pose_tracker = naive_pose_tracker()
 
-        # action recognition
-        data = torch.from_numpy(data_numpy)
-        data = data.unsqueeze(0)
-        data = data.float().to(self.dev).detach()  # (1, channel, frame, joint, person)
+        if self.arg.video == 'camera_source':
+            video_capture = cv2.VideoCapture(0)
+        else:
+            video_capture = cv2.VideoCapture(self.arg.video)
 
-        # model predict
-        voting_label_name, video_label_name, output, intensity = self.predict(data)
+        # start recognition
+        start_time = time.time()
+        frame_index = 0
+        while(True):
 
-        # render the video
-        images = self.render_video(data_numpy, voting_label_name,
-                            video_label_name, intensity, video)
-        
-        videoWrite = cv2.VideoWriter('/hy-tmp/video_result/ta_chi_result.avi', 
-                                     cv2.VideoWriter_fourcc(*'MJPG'), 
-                                     30, 
-                                     (1434,1080), 
-                                     True)# 写入对象
-        
-        # visualize
-        for image in images:
-            image = image.astype(np.uint8)
-            videoWrite.write(image)
-        videoWrite.release()
+            tic = time.time()
+
+            # get image
+            ret, orig_image = video_capture.read()
+            if orig_image is None:
+                break
+            source_H, source_W, _ = orig_image.shape
+            orig_image = cv2.resize(
+                orig_image, (256 * source_W // source_H, 256))
+            H, W, _ = orig_image.shape
+            
+            # pose estimation
+            datum = op.Datum()
+            datum.cvInputData = orig_image
+            opWrapper.emplaceAndPop([datum])
+            multi_pose = datum.poseKeypoints  # (num_person, num_joint, 3)
+            if len(multi_pose.shape) != 3:
+                continue
+
+            # normalization
+            multi_pose[:, :, 0] = multi_pose[:, :, 0]/W
+            multi_pose[:, :, 1] = multi_pose[:, :, 1]/H
+            multi_pose[:, :, 0:2] = multi_pose[:, :, 0:2] - 0.5
+            multi_pose[:, :, 0][multi_pose[:, :, 2] == 0] = 0
+            multi_pose[:, :, 1][multi_pose[:, :, 2] == 0] = 0
+
+            # pose tracking
+            if self.arg.video == 'camera_source':
+                frame_index = int((time.time() - start_time)*self.arg.fps)
+            else:
+                frame_index += 1
+            pose_tracker.update(multi_pose, frame_index)
+            data_numpy = pose_tracker.get_skeleton_sequence()
+            data = torch.from_numpy(data_numpy)
+            data = data.unsqueeze(0)
+            data = data.float().to(self.dev).detach()  # (1, channel, frame, joint, person)
+
+            # model predict
+            voting_label_name, video_label_name, output, intensity = self.predict(
+                data)
+
+            # visualization
+            app_fps = 1 / (time.time() - tic)
+            image = self.render(data_numpy, voting_label_name,
+                                video_label_name, intensity, orig_image, app_fps)
+            cv2.imshow("ST-GCN", image)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
     def predict(self, data):
         # forward
@@ -87,85 +146,18 @@ class DemoOfflineViT(IO):
             video_label_name.append(frame_label_name)
         return voting_label_name, video_label_name, output, intensity
 
-    def render_video(self, data_numpy, voting_label_name, video_label_name, intensity, video):
+    def render(self, data_numpy, voting_label_name, video_label_name, intensity, orig_image, fps=0):
         images = utils.visualization.stgcn_visualize(
-            data_numpy,
+            data_numpy[:, [-1]],
             self.model.graph.edge,
-            intensity, video,
+            intensity[[-1]], [orig_image],
             voting_label_name,
-            video_label_name,
-            self.arg.height)
-        return images
-
-    def pose_estimation(self):
-        # load ViTPose module
-        try:
-            from tools.estimate_st import estimate
-            ckpt_name = os.path.basename(self.arg.ckpt_path)
-            if ckpt_name == "vitpose-l.pth":
-                from config.ViTPose_large_coco_256x192 import model as model_cfg
-                from config.ViTPose_large_coco_256x192 import data_cfg
-            elif ckpt_name == "vitpose-h.pth":
-                from config.ViTPose_huge_coco_256x192 import model as model_cfg
-                from config.ViTPose_huge_coco_256x192 import data_cfg
-            elif ckpt_name == "vitpose-b.pth":
-                from config.ViTPose_base_coco_256x192 import model as model_cfg
-                from config.ViTPose_base_coco_256x192 import data_cfg
-        except:
-            print('Can not find ViTPose api')
-            return
-
-        # 获取路径中最后的的视频文件名称
-        video_name = self.arg.video.split('/')[-1].split('.')[0]
-
-        # initiate
-        video_capture = cv2.VideoCapture(self.arg.video)
-        video_length = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-        pose_tracker = naive_pose_tracker(data_frame=video_length)
-
-        # pose estimation
-        start_time = time.time()
-        frame_index = 0
-        video = list()
-        while(True):
-
-            # get image and resize it 
-            ret, orig_image = video_capture.read()
-            if orig_image is None:
-                break
-            source_H, source_W, _ = orig_image.shape
-            orig_image = cv2.resize(
-                orig_image, (256 * source_W // source_H, 256))
-            H, W, _ = orig_image.shape
-            video.append(orig_image)
-
-            # pose estimation
-            img_size = data_cfg['image_size']
-            CKPT_PATH = self.arg.ckpt_path
-            orig_image = Image.fromarray(cv2.cvtColor(orig_image, cv2.COLOR_BGR2RGB))
-            multi_pose = estimate(img=orig_image, img_size=img_size, model_cfg=model_cfg, ckpt_path=CKPT_PATH, 
-                                  device=torch.device("cuda") if torch.cuda.is_available() else torch.device('cpu'),
-                                  ) # Shape '(num_person, num_joint, 3)'
-            # estimate的输出用于st-gcn时x-y坐标位置会互换，这里要先换一次，否则输出的关键点的坐标是错误的
-            multi_pose[:,:,[0,1]] = multi_pose[:,:,[1,0]]
-            if len(multi_pose.shape) != 3:
-                continue
-
-            # normalization
-            multi_pose[:, :, 0] = multi_pose[:, :, 0]/W
-            multi_pose[:, :, 1] = multi_pose[:, :, 1]/H
-            multi_pose[:, :, 0:2] = multi_pose[:, :, 0:2] - 0.5
-            multi_pose[:, :, 0][multi_pose[:, :, 2] == 0] = 0
-            multi_pose[:, :, 1][multi_pose[:, :, 2] == 0] = 0
-
-            # pose tracking
-            pose_tracker.update(multi_pose, frame_index)
-            frame_index += 1
-
-            print('Pose estimation ({}/{}).'.format(frame_index, video_length))
-
-        data_numpy = pose_tracker.get_skeleton_sequence()
-        return video, data_numpy
+            [video_label_name[-1]],
+            self.arg.height,
+            fps=fps)
+        image = next(images)
+        image = image.astype(np.uint8)
+        return image
 
     @staticmethod
     def get_parser(add_help=False):
@@ -194,12 +186,8 @@ class DemoOfflineViT(IO):
                             default=1080,
                             type=int,
                             help='height of frame in the output video.')
-        parser.add_argument('--ckpt_path', 
-                            type=str, 
-                            default='/hy-tmp/train_result/vitpose-l.pth', 
-                            help='ckpt path(s)')
         parser.set_defaults(
-            config='./config/st_gcn/kinetics-skeleton/demo_offline.yaml')
+            config='./config/st_gcn/kinetics-skeleton/demo_realtime.yaml')
         parser.set_defaults(print_log=False)
         # endregion yapf: enable
 
