@@ -16,7 +16,7 @@ import tools.utils as utils
 
 import cv2
 
-class DemoOfflineViT(IO):
+class DemoOfflineViTNew(IO):
 
     def start(self):
         
@@ -199,7 +199,7 @@ class DemoOfflineViT(IO):
                             default='/hy-tmp/train_result/vitpose-b.pth', 
                             help='ckpt path(s)')
         parser.set_defaults(
-            config='./config/st_gcn/kinetics-skeleton/demo_offline.yaml')
+            config='./config/st_gcn/kinetics-skeleton/demo_offline_new.yaml')
         parser.set_defaults(print_log=False)
         # endregion yapf: enable
 

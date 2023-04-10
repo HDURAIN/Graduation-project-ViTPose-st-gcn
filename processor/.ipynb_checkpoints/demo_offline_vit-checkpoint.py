@@ -40,7 +40,7 @@ class DemoOfflineViT(IO):
         voting_label_name, video_label_name, output, intensity = self.predict(data)
 
         # render the video
-        images = self.render_video(data_numpy, voting_label_name,
+        images = self.render_video(data_numpy, voting_label_name, 
                             video_label_name, intensity, video)
         
         videoWrite = cv2.VideoWriter('/hy-tmp/video_result/ta_chi_result.avi', 
@@ -196,7 +196,7 @@ class DemoOfflineViT(IO):
                             help='height of frame in the output video.')
         parser.add_argument('--ckpt_path', 
                             type=str, 
-                            default='/hy-tmp/train_result/vitpose-l.pth', 
+                            default='/hy-tmp/train_result/vitpose-b.pth', 
                             help='ckpt path(s)')
         parser.set_defaults(
             config='./config/st_gcn/kinetics-skeleton/demo_offline.yaml')

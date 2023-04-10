@@ -11,10 +11,8 @@ import torch.nn as nn
 import torch.optim as optim
 
 # torchlight
-import torchlight
-from torchlight.torchlight.io import str2bool
-from torchlight.torchlight.io import DictAction
-from torchlight.torchlight.io import import_class
+from torchlight.torchlight.io import str2bool, DictAction, import_class
+from torchlight.torchlight.gpu import ngpu
 
 from .io import IO
 
@@ -54,7 +52,7 @@ class Processor(IO):
                 dataset=Feeder(**self.arg.train_feeder_args),
                 batch_size=self.arg.batch_size,
                 shuffle=True,
-                num_workers=self.arg.num_worker * torchlight.ngpu(
+                num_workers=self.arg.num_worker * ngpu(
                     self.arg.device),
                 drop_last=True)
         if self.arg.test_feeder_args:
@@ -62,7 +60,7 @@ class Processor(IO):
                 dataset=Feeder(**self.arg.test_feeder_args),
                 batch_size=self.arg.test_batch_size,
                 shuffle=False,
-                num_workers=self.arg.num_worker * torchlight.ngpu(
+                num_workers=self.arg.num_worker * ngpu(
                     self.arg.device))
 
     def show_epoch_info(self):
