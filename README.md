@@ -8,7 +8,10 @@ What's more, here is the **ViTPose without mmlab** [ViTPose_pytorch](https://git
 The main part of ViTPose in my project were written with reference to this repo.
 
 ## Demo result
-![xiaorou](resource/info/xiaorou.gif) ![xiaorou](resource/info/xiaorou2.gif) ![ta_chi](resource/info/ta_chi.gif)
+### ViTPose
+![xiaorou](resource/info/xiaorou.gif) ![xiaorou](resource/info/xiaorou2.gif) 
+### ViTPose + ST-GCN
+![ta_chi](resource/info/ta_chi.gif)
 
 ## Prerequisites
 - Python3 (>3.5)
