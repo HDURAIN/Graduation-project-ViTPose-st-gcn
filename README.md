@@ -44,7 +44,7 @@ You can use the following commands to run the demo.
 python vit_image_estimate.py --image_path ${PATH_TO_image} --ckpt_path ${PATH_TO_ViTPose_Pretrained_Model}
 
 # with offline pose estimation for video
-python vit_image_estimate.py --video_path ${PATH_TO_video} --ckpt_path ${PATH_TO_ViTPose_Pretrained_Model}
+python vit_video_estimate.py --video_path ${PATH_TO_video} --ckpt_path ${PATH_TO_ViTPose_Pretrained_Model}
 
 # with offline skeleton recognition
 python main.py demo_offline_vit --video ${PATH_TO_VIDEO}
