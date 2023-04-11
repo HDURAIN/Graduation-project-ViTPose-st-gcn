@@ -8,15 +8,9 @@ What's more, here is the **ViTPose without mmlab** [ViTPose_pytorch](https://git
 The main part of ViTPose in my project were written with reference to this repo.
 
 ## Demo result
-
-### ViTPose result
 <p align="center">
     <img src="resource/info/xiaorou.gif">
-</p>
-
-### ST-GCN result
-<p align="center">
-    <img src="resource/info/ta_chi.gif", width="1200">
+    <img src="resource/info/ta_chi.gif">
 </p>
 
 ## Prerequisites
