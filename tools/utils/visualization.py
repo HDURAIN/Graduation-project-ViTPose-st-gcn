@@ -104,8 +104,10 @@ def stgcn_visualize(pose,
         rgb_result[rgb_result > 255] = 255
         rgb_result.astype(np.uint8)
 
-        put_text(skeleton, 'inputs of st-gcn', (0.15, 0.5))
+        # put_text(skeleton, 'inputs of st-gcn', (0.15, 0.5))
 
+        """
+        视频尺寸多有不同，竖屏视频无法容纳文字
         text_1 = cv2.imread(
             './resource/demo_asset/original_video.png', cv2.IMREAD_UNCHANGED)
         text_2 = cv2.imread(
@@ -122,9 +124,10 @@ def stgcn_visualize(pose,
             blend(rgb_result, text_4)
         except:
             pass
-
+        """    
+        
         if label is not None:
-            label_name = 'voting result: ' + label
+            label_name = str(label)
             put_text(skeleton_result, label_name, (0.1, 0.5))
 
         if fps is not None:

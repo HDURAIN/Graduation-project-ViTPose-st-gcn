@@ -28,6 +28,8 @@ class DemoOfflineViT(IO):
             label_name = [line.rstrip() for line in label_name]
             self.label_name = label_name
 
+        video_cap = cv2.VideoCapture(self.arg.video)
+        
         # pose estimation
         video, data_numpy = self.pose_estimation()
 
@@ -43,15 +45,15 @@ class DemoOfflineViT(IO):
         images = self.render_video(data_numpy, voting_label_name, 
                             video_label_name, intensity, video)
         
-        videoWrite = cv2.VideoWriter('/hy-tmp/video_result/ta_chi_result.avi', 
-                                     cv2.VideoWriter_fourcc(*'MJPG'), 
-                                     30, 
-                                     (1434,1080), 
-                                     True)# 写入对象
-        
+        shape_flag = 1
         # visualize
         for image in images:
             image = image.astype(np.uint8)
+            if shape_flag == 1:
+                videoWrite = cv2.VideoWriter('/hy-tmp/video_result_stgcn/'+str(self.video_name)+'_result.avi', 
+                                             cv2.VideoWriter_fourcc(*'MJPG'), 
+                                             30, (image.shape[1], image.shape[0]), True)# 写入对象
+                shape_flag = 0
             videoWrite.write(image)
         videoWrite.release()
 
@@ -116,7 +118,7 @@ class DemoOfflineViT(IO):
             return
 
         # 获取路径中最后的的视频文件名称
-        video_name = self.arg.video.split('/')[-1].split('.')[0]
+        self.video_name = self.arg.video.split('/')[-1].split('.')[0]
 
         # initiate
         video_capture = cv2.VideoCapture(self.arg.video)
@@ -196,7 +198,7 @@ class DemoOfflineViT(IO):
                             help='height of frame in the output video.')
         parser.add_argument('--ckpt_path', 
                             type=str, 
-                            default='/hy-tmp/train_result/vitpose-b.pth', 
+                            default='/hy-tmp/pretrained_vit/vitpose-b.pth', 
                             help='ckpt path(s)')
         parser.set_defaults(
             config='./config/st_gcn/kinetics-skeleton/demo_offline.yaml')
