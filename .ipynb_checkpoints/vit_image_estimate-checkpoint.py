@@ -28,7 +28,8 @@ if __name__ == "__main__":
     # 获取命令行参数
     parser = argparse.ArgumentParser()
     parser.add_argument('--image_path', nargs='+', type=str, default='examples/sample.jpg', help='image path(s)')
-    parser.add_argument('--ckpt_path', type=str, default='/hy-tmp/train_result/vitpose-l.pth', help='ckpt path(s)')
+    parser.add_argument('--ckpt_path', type=str, default='/hy-tmp/pretrained_vit/vitpose-b.pth', help='ckpt path')
+    parser.add_argument('--save_dir', type=str, default='/hy-tmp/image_result_vit', help='save path')
     args = parser.parse_args()
     
     # 源实现总是要自己手动改一堆地方太不方便，这里根据输入的ckpt文件名自动导入相关cfg文件
@@ -53,7 +54,9 @@ if __name__ == "__main__":
     if type(args.image_path) != list:
          args.image_path = [args.image_path]
     for img_path in args.image_path:
-        print(img_path)
+        print('Read image from ' + img_path)
+        img_name = img_path.split('/')[-1].split('.')[0]
+        img_type = img_path.split('/')[-1].split('.')[1]
         img = Image.open(img_path)
         # 每张输入的图像调用一次estimate函数 返回为 point
         keypoints = estimate(img=img, img_size=img_size, model_cfg=model_cfg, ckpt_path=CKPT_PATH, 
@@ -65,6 +68,7 @@ if __name__ == "__main__":
             img = draw_points_and_skeleton(img.copy(), point, joints_dict()['openpose']['skeleton'], person_index=pid,
                                             points_color_palette='gist_rainbow', skeleton_color_palette='jet',
                                             points_palette_samples=10, confidence_threshold=0.4)
-            save_name = img_path.replace(".jpg", "_result.jpg")
+            
+            save_name = args.save_dir + '/' + str(img_name) + '_result.' + str(img_type)
             cv2.imwrite(save_name, img)
-    
+            print('Image save at "' + save_name + '" successfully!')

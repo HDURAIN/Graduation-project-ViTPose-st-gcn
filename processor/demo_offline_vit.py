@@ -46,16 +46,18 @@ class DemoOfflineViT(IO):
                             video_label_name, intensity, video)
         
         shape_flag = 1
+        save_name = self.arg.save_dir + '/' + str(self.video_name) + '_result.avi'
         # visualize
         for image in images:
             image = image.astype(np.uint8)
             if shape_flag == 1:
-                videoWrite = cv2.VideoWriter('/hy-tmp/video_result_stgcn/'+str(self.video_name)+'_result.avi', 
+                videoWrite = cv2.VideoWriter(save_name, 
                                              cv2.VideoWriter_fourcc(*'MJPG'), 
                                              30, (image.shape[1], image.shape[0]), True)# 写入对象
                 shape_flag = 0
             videoWrite.write(image)
         videoWrite.release()
+        print('Video save at "' + save_name + '" successfully!')
 
     def predict(self, data):
         # forward
@@ -198,8 +200,12 @@ class DemoOfflineViT(IO):
                             help='height of frame in the output video.')
         parser.add_argument('--ckpt_path', 
                             type=str, 
-                            default='/hy-tmp/pretrained_vit/vitpose-l.pth', 
-                            help='ckpt path(s)')
+                            default='/hy-tmp/pretrained_vit/vitpose-b.pth', 
+                            help='ckpt path')
+        parser.add_argument('--save_dir', 
+                            type=str, 
+                            default='/hy-tmp/video_result_stgcn', 
+                            help='save path')
         parser.set_defaults(
             config='./config/st_gcn/kinetics-skeleton/demo_offline.yaml')
         parser.set_defaults(print_log=False)

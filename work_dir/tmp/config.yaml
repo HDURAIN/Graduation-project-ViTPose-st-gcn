@@ -1,6 +1,6 @@
-# command line: main.py demo_offline_vit --video /hy-tmp/demo_video/ta_chi.mp4
+# command line: main.py demo_offline_vit --video /hy-tmp/demo_video/xiaorou.avi
 
-ckpt_path: /hy-tmp/pretrained_vit/vitpose-l.pth
+ckpt_path: /hy-tmp/pretrained_vit/vitpose-b.pth
 config: ./config/st_gcn/kinetics-skeleton/demo_offline.yaml
 device:
 - 0
@@ -18,8 +18,9 @@ model_fps: 30
 model_input_frame: 128
 openpose: null
 print_log: false
+save_dir: /hy-tmp/video_result_stgcn
 save_log: true
 use_gpu: true
-video: /hy-tmp/demo_video/ta_chi.mp4
+video: /hy-tmp/demo_video/xiaorou.avi
 weights: ./models/st_gcn.kinetics.pt
 work_dir: ./work_dir/tmp
