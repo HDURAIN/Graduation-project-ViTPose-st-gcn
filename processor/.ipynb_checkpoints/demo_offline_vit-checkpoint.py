@@ -198,7 +198,7 @@ class DemoOfflineViT(IO):
                             help='height of frame in the output video.')
         parser.add_argument('--ckpt_path', 
                             type=str, 
-                            default='/hy-tmp/pretrained_vit/vitpose-b.pth', 
+                            default='/hy-tmp/pretrained_vit/vitpose-l.pth', 
                             help='ckpt path(s)')
         parser.set_defaults(
             config='./config/st_gcn/kinetics-skeleton/demo_offline.yaml')
