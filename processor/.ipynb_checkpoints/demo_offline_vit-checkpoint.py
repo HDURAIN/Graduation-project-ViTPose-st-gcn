@@ -181,7 +181,7 @@ class DemoOfflineViT(IO):
 
         # region arguments yapf: disable
         parser.add_argument('--video',
-                            default='./resource/media/skateboarding.mp4',
+                            default='./resource/media/ta_chi.mp4',
                             help='Path to video')
         parser.add_argument('--openpose',
                             default=None,

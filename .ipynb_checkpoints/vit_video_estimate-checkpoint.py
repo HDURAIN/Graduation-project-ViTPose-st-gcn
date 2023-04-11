@@ -20,7 +20,7 @@ if __name__ == "__main__":
     
     # 获取命令行参数
     parser = argparse.ArgumentParser()
-    parser.add_argument('--video_path', type=str, default='examples/sample.avi', help='video path(s)')
+    parser.add_argument('--video_path', type=str, default='resource/media/ta_chi.avi', help='video path(s)')
     parser.add_argument('--ckpt_path', type=str, default='/hy-tmp/pretrained_vit/vitpose-b.pth', help='ckpt path(s)')
     args = parser.parse_args()
     
