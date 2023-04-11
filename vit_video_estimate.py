@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--video_path', type=str, default='resource/media/ta_chi.avi', help='video path')
     parser.add_argument('--save_dir', type=str, default='/hy-tmp/video_result_vit', help='save path')
-    parser.add_argument('--ckpt_path', type=str, default='/hy-tmp/pretrained_vit/vitpose-b.pth', help='ckpt path')
+    parser.add_argument('--ckpt_path', type=str, default='/hy-tmp/pretrained_vit/vitpose-l.pth', help='ckpt path')
     args = parser.parse_args()
     
     # 源实现总是要自己手动改一堆地方太不方便，这里根据输入的ckpt文件名自动导入相关cfg文件
