@@ -71,4 +71,4 @@ if __name__ == "__main__":
             
             save_name = args.save_dir + '/' + str(img_name) + '_result.' + str(img_type)
             cv2.imwrite(save_name, img)
-            print('Image save at "' + save_name + '" successfully!')
+        print('Image save at "' + save_name + '" successfully!')
