@@ -22,7 +22,7 @@ Origin ST-GCN repo provided the pretrained model weithts of our **ST-GCN**. The 
 bash tools/get_models.sh
 ```
 <!-- The downloaded models will be stored under ```./models```. -->
-You can also obtain models from [GoogleDrive](https://drive.google.com/drive/folders/1IYKoSrjeI3yYJ9bO0_z_eDo92i7ob_aF) or [BaiduYun](https://pan.baidu.com/s/1dwKG2TLvG-R1qeIiE4MjeA#list/path=%2FShare%2FAAAI18%2Fst-gcn%2Fmodels&parentPath=%2FShare), and manually put them into ```./models```.
+You can also obtain models from [GoogleDrive](https://drive.google.com/drive/folders/1IYKoSrjeI3yYJ9bO0_z_eDo92i7ob_aF) or [BaiduYun](https://pan.baidu.com/s/1jYY5RG4C7hqkKWsUJ0Rzhw?pwd=1266), and manually put them into ```./models```.
 
 ### Get pretrained models of ViTPose
 > With classic decoder
@@ -57,7 +57,7 @@ We experimented on two skeleton-based action recognition datasts: **Kinetics-ske
 Before training and testing, for convenience of fast data loading,
 the datasets should be converted to proper file structure. 
 You can download the pre-processed data from 
-[GoogleDrive](https://drive.google.com/open?id=103NOL9YYZSW1hLoWmYnv5Fs8mK-Ij7qb) or [BaiduYun]()
+[GoogleDrive](https://drive.google.com/open?id=103NOL9YYZSW1hLoWmYnv5Fs8mK-Ij7qb) or [BaiduYun](https://pan.baidu.com/s/1z3CBsGlBiIkZxvG9YvpySw?pwd=1266)
 and extract files with
 ``` 
 cd st-gcn
