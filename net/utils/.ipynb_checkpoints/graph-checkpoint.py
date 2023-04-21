@@ -67,7 +67,8 @@ class Graph():
                               (22, 23), (23, 8), (24, 25), (25, 12)]
             neighbor_link = [(i - 1, j - 1) for (i, j) in neighbor_1base]
             self.edge = self_link + neighbor_link
-            self.center = 21 - 1
+            self.center = 21
+            print(self.center)
         elif layout == 'ntu_edge':
             self.num_node = 24
             self_link = [(i, i) for i in range(self.num_node)]
@@ -89,11 +90,23 @@ class Graph():
             neighbor_link = [(4, 3), (3, 2), (7, 6), (6, 5), (13, 12), (12, 11),
                              (10, 9), (9, 8), (11, 1), (8, 1), (5, 1), (2, 1),
                              (0, 1), (15, 0), (14, 0), (17, 15), (16, 14),
-                             (4, 10), (7, 13)]
+                             (4, 10), (7, 13), (7, 0), (4, 0)]
             # 整个一帧的边集 = 自连接子集 + 所有点之间的边子集
             self.edge = self_link + neighbor_link
             # 大概与分区策略中的中心有关
             self.center = 1
+        elif layout=='customer_ntu':
+            self.num_node = 25
+            self_link = [(i, i) for i in range(self.num_node)]
+            neighbor_1base = [(1, 2), (2, 21), (3, 21), (4, 3), (5, 21),
+                              (6, 5), (7, 6), (8, 7), (9, 21), (10, 9),
+                              (11, 10), (12, 11), (13, 1), (14, 13), (15, 14),
+                              (16, 15), (17, 1), (18, 17), (19, 18), (20, 19),
+                              (22, 23), (23, 8), (24, 25), (25, 12), 
+                              (11, 19), (7, 15), (11, 4), (7, 4)]
+            neighbor_link = [(i - 1, j - 1) for (i, j) in neighbor_1base]
+            self.edge = self_link + neighbor_link
+            self.center = 21
         else:
             raise ValueError("Do Not Exist This Layout.")
 
@@ -127,7 +140,8 @@ class Graph():
                 for i in range(self.num_node):
                     for j in range(self.num_node):
                         if self.hop_dis[j, i] == hop:   # 如果i和j是邻接节点
-                            # 比较节点i和j分别到中心点的距离，center点是1号点（脖子）
+                            # 比较节点i和j分别到中心点的距离，center点是1号点（vitpose)
+                            # NTU中心点为21
                             if self.hop_dis[j, self.center] == self.hop_dis[
                                     i, self.center]:
                                 a_root[j, i] = normalize_adjacency[j, i]

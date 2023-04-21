@@ -1,4 +1,4 @@
-work_dir: /hy-tmp/work_dir/ST-GCN
+work_dir: /hy-tmp/result/work_dir
 
 # feeder
 feeder: feeder.feeder.Feeder
@@ -13,7 +13,7 @@ test_feeder_args:
   label_path: /hy-tmp/data/kinetics-skeleton/val_label.pkl
 
 # model
-model: net.st_gcn.Model
+model: net.st_gcn_new.Model
 model_args:
   in_channels: 3
   num_class: 400
