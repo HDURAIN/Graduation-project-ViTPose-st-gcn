@@ -100,7 +100,7 @@ class Model(nn.Module):
         # forwad
         x, _ = self.st_gcn_networks[0](x, self.A * self.edge_importance[0])
         x, _ = self.st_gcn_networks[1](x, self.A * self.edge_importance[1])
-        x = self.attn1(x)
+        # x = self.attn1(x)
         x, _ = self.st_gcn_networks[2](x, self.A * self.edge_importance[2])
         x, _ = self.st_gcn_networks[3](x, self.A * self.edge_importance[3])
         x, _ = self.st_gcn_networks[4](x, self.A * self.edge_importance[4])
@@ -109,7 +109,7 @@ class Model(nn.Module):
         x, _ = self.st_gcn_networks[6](x, self.A * self.edge_importance[6])
         x, _ = self.st_gcn_networks[7](x, self.A * self.edge_importance[7])
         x, _ = self.st_gcn_networks[8](x, self.A * self.edge_importance[8])
-        x = self.attn3(x)
+        # x = self.attn3(x)
         x, _ = self.st_gcn_networks[9](x, self.A * self.edge_importance[9])
 
         # global pooling
