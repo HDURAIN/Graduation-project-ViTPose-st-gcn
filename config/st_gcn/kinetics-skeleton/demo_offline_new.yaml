@@ -1,8 +1,8 @@
-weights: /hy-tmp/result/epoch40_model.pt
+weights: /hy-tmp/models/st-gcn_2d/SEA_G_2D/SEA_G_2D.pt
 model_fps: 30
 
 # model
-model: net.st_gcn.Model
+model: net.st_gcn_new.Model
 model_args:
   in_channels: 3
   num_class: 400

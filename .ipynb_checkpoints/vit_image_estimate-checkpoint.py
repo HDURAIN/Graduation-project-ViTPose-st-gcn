@@ -27,12 +27,12 @@ if __name__ == "__main__":
     
     # 获取命令行参数
     parser = argparse.ArgumentParser()
-    parser.add_argument('--image_path', nargs='+', type=str, default='examples/sample.jpg', help='image path(s)')
-    parser.add_argument('--ckpt_path', type=str, default='/hy-tmp/pretrained_vit/vitpose-b.pth', help='ckpt path')
-    parser.add_argument('--save_dir', type=str, default='/hy-tmp/image_result_vit', help='save path')
+    parser.add_argument('--image_path', nargs='+', type=str, default='/hy-tmp/demo_resource/demo_pic/1.jpg', help='image path(s)')
+    parser.add_argument('--ckpt_path', type=str, default='/hy-tmp/models/pretrained_vit/vitpose-b.pth', help='ckpt path')
+    parser.add_argument('--save_dir', type=str, default='/hy-tmp/result/image_result_vit', help='save path')
     args = parser.parse_args()
     
-    # 源实现总是要自己手动改一堆地方太不方便，这里根据输入的ckpt文件名自动导入相关cfg文件
+    # 原实现总是要自己手动改一堆地方太不方便，这里根据输入的ckpt文件名自动导入相关cfg文件
     ckpt_name = os.path.basename(args.ckpt_path)
     if ckpt_name == "vitpose-l.pth":
         from config.ViTPose_large_coco_256x192 import model as model_cfg

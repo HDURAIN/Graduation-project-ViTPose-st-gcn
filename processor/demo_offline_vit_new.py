@@ -43,7 +43,7 @@ class DemoOfflineViTNew(IO):
         images = self.render_video(data_numpy, voting_label_name, 
                             video_label_name, intensity, video)
         
-        videoWrite = cv2.VideoWriter('/hy-tmp/video_result/ta_chi_result.avi', 
+        videoWrite = cv2.VideoWriter('/hy-tmp/result/video_result_stgcn/xiaorou_result.avi', 
                                      cv2.VideoWriter_fourcc(*'MJPG'), 
                                      30, 
                                      (1434,1080), 
@@ -99,21 +99,17 @@ class DemoOfflineViTNew(IO):
 
     def pose_estimation(self):
         # load ViTPose module
-        try:
-            from tools.estimate_st import estimate
-            ckpt_name = os.path.basename(self.arg.ckpt_path)
-            if ckpt_name == "vitpose-l.pth":
-                from config.ViTPose_large_coco_256x192 import model as model_cfg
-                from config.ViTPose_large_coco_256x192 import data_cfg
-            elif ckpt_name == "vitpose-h.pth":
-                from config.ViTPose_huge_coco_256x192 import model as model_cfg
-                from config.ViTPose_huge_coco_256x192 import data_cfg
-            elif ckpt_name == "vitpose-b.pth":
-                from config.ViTPose_base_coco_256x192 import model as model_cfg
-                from config.ViTPose_base_coco_256x192 import data_cfg
-        except:
-            print('Can not find ViTPose api')
-            return
+        from tools.estimate_st import estimate
+        ckpt_name = os.path.basename(self.arg.ckpt_path)
+        if ckpt_name == "vitpose-l.pth":
+            from config.ViTPose_large_coco_256x192 import model as model_cfg
+            from config.ViTPose_large_coco_256x192 import data_cfg
+        elif ckpt_name == "vitpose-h.pth":
+            from config.ViTPose_huge_coco_256x192 import model as model_cfg
+            from config.ViTPose_huge_coco_256x192 import data_cfg
+        elif ckpt_name == "vitpose-b.pth":
+            from config.ViTPose_base_coco_256x192 import model as model_cfg
+            from config.ViTPose_base_coco_256x192 import data_cfg
 
         # 获取路径中最后的的视频文件名称
         video_name = self.arg.video.split('/')[-1].split('.')[0]
@@ -196,7 +192,7 @@ class DemoOfflineViTNew(IO):
                             help='height of frame in the output video.')
         parser.add_argument('--ckpt_path', 
                             type=str, 
-                            default='/hy-tmp/train_result/vitpose-b.pth', 
+                            default='/hy-tmp/models/pretrained_vit/vitpose-b.pth', 
                             help='ckpt path(s)')
         parser.set_defaults(
             config='./config/st_gcn/kinetics-skeleton/demo_offline_new.yaml')

@@ -103,21 +103,17 @@ class DemoOfflineViT(IO):
 
     def pose_estimation(self):
         # load ViTPose module
-        try:
-            from tools.estimate_st import estimate
-            ckpt_name = os.path.basename(self.arg.ckpt_path)
-            if ckpt_name == "vitpose-l.pth":
-                from config.ViTPose_large_coco_256x192 import model as model_cfg
-                from config.ViTPose_large_coco_256x192 import data_cfg
-            elif ckpt_name == "vitpose-h.pth":
-                from config.ViTPose_huge_coco_256x192 import model as model_cfg
-                from config.ViTPose_huge_coco_256x192 import data_cfg
-            elif ckpt_name == "vitpose-b.pth":
-                from config.ViTPose_base_coco_256x192 import model as model_cfg
-                from config.ViTPose_base_coco_256x192 import data_cfg
-        except:
-            print('Can not find ViTPose api')
-            return
+        from tools.estimate_st import estimate
+        ckpt_name = os.path.basename(self.arg.ckpt_path)
+        if ckpt_name == "vitpose-l.pth":
+            from config.ViTPose_large_coco_256x192 import model as model_cfg
+            from config.ViTPose_large_coco_256x192 import data_cfg
+        elif ckpt_name == "vitpose-h.pth":
+            from config.ViTPose_huge_coco_256x192 import model as model_cfg
+            from config.ViTPose_huge_coco_256x192 import data_cfg
+        elif ckpt_name == "vitpose-b.pth":
+            from config.ViTPose_base_coco_256x192 import model as model_cfg
+            from config.ViTPose_base_coco_256x192 import data_cfg
 
         # 获取路径中最后的的视频文件名称
         self.video_name = self.arg.video.split('/')[-1].split('.')[0]
@@ -200,11 +196,11 @@ class DemoOfflineViT(IO):
                             help='height of frame in the output video.')
         parser.add_argument('--ckpt_path', 
                             type=str, 
-                            default='/hy-tmp/pretrained_vit/vitpose-b.pth', 
+                            default='/hy-tmp/models/pretrained_vit/vitpose-b.pth', 
                             help='ckpt path')
         parser.add_argument('--save_dir', 
                             type=str, 
-                            default='/hy-tmp/video_result_stgcn', 
+                            default='/hy-tmp/result/video_result_stgcn', 
                             help='save path')
         parser.set_defaults(
             config='./config/st_gcn/kinetics-skeleton/demo_offline.yaml')
